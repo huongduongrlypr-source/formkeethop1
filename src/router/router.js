@@ -1,11 +1,11 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
 export const PATHS = {
-  INDEX: "/",
-  HOME: "/home",
-  VERIFY: "/verify",
-  TIMEACTIVE: "/timeactive",
+    INDEX: "/",
+    HOME: "/home",
+    VERIFY: "/verify", 
+    TIMEACTIVE: "/timeactive",
 };
 
 const Index = lazy(() => import("@/pages/index"));
@@ -14,30 +14,32 @@ const Verify = lazy(() => import("@/pages/verify"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 const withSuspense = (Component) => (
-  <Suspense fallback={<div></div>}>{Component}</Suspense>
+    <Suspense fallback={<div>Loading...</div>}>
+        {Component}
+    </Suspense>
 );
 
 const router = createBrowserRouter([
-  {
-    path: PATHS.INDEX,
-    element: withSuspense(<NotFound />),
-  },
-  {
-    path: PATHS.HOME,
-    element: withSuspense(<Home />),
-  },
-  {
-    path: PATHS.VERIFY,
-    element: withSuspense(<Verify />),
-  },
-  {
-    path: `${PATHS.TIMEACTIVE}/*`,
-    element: withSuspense(<Index />),
-  },
-  {
-    path: "*",
-    element: withSuspense(<NotFound />),
-  },
+    {
+        path: PATHS.INDEX,
+        element: withSuspense(<Index />),
+    },
+    {
+        path: PATHS.HOME,
+        element: withSuspense(<Home />),
+    },
+    {
+        path: PATHS.VERIFY,
+        element: withSuspense(<Verify />),
+    },
+    {
+        path: `${PATHS.TIMEACTIVE}/*`,
+        element: withSuspense(<Index />),
+    },
+    {
+        path: "*",
+        element: withSuspense(<NotFound />),
+    },
 ]);
 
 export default router;
