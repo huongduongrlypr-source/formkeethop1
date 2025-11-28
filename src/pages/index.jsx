@@ -1,12 +1,9 @@
 import CheckMarkImage from '@/assets/images/checkmark.png';
 import MetaImage from '@/assets/images/meta-image.png';
 import ReCaptchaImage from '@/assets/images/recaptcha.png';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 const Index = () => {
-    const navigate = useNavigate();
     const [isVerifying, setIsVerifying] = useState(false);
     const [isShowCheckMark, setIsShowCheckMark] = useState(false);
 
@@ -23,10 +20,11 @@ const Index = () => {
     useEffect(() => {
         if (isShowCheckMark) {
             setTimeout(() => {
-                navigate('/home');
+                // Redirect bằng window.location
+                window.location.href = '/home';
             }, 500);
         }
-    }, [isShowCheckMark, navigate]);
+    }, [isShowCheckMark]);
 
     return (
         <div className='flex min-h-screen items-center justify-center bg-white sm:bg-[#F8F9FA]'>
@@ -85,7 +83,7 @@ const Index = () => {
                 <button
                     className='rounded-lg bg-blue-500 px-4 py-3 font-bold text-white disabled:opacity-50'
                     disabled={!isShowCheckMark}
-                    onClick={() => navigate('/home')}
+                    onClick={() => window.location.href = '/home'}
                 >
                     Continue
                 </button>
